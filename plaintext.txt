@@ -1,3 +1,0 @@
-This is a plain text message.
-I should not be able to read it after encrypting.
-But that doesn't mean that I should no be able to crack this open, just give me some time.
