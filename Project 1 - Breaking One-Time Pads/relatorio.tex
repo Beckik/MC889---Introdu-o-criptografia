@@ -1,0 +1,137 @@
+\documentclass[10pt]{article}
+
+\addtolength{\hoffset}{-2cm}
+\addtolength{\textwidth}{3.5cm}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{5cm}
+
+\setlength{\columnsep}{10cm}
+
+%\usepackage{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%\usepackage{fullpage}
+\usepackage{varwidth}
+\usepackage{fancyhdr}
+\usepackage{listings}
+
+\selectlanguage{brazil}
+
+% Define a header to appear on all pages.
+\pagestyle{fancyplain}
+\fancypagestyle{plain}{
+\renewcommand{\headrulewidth}{0.4pt}
+}
+% Left side of header.
+\lhead{\fancyplain{Relatório - Projeto 1}{Relatório - Projeto 1}}
+% Right side of header
+\rhead{\fancyplain{Quebrando 'Two-Time Pads'}{Quebrando 'Two-Time Pads'}}
+
+% Metadata used to create a title.
+\title{\textbf{Quebrando 'Two-Time Pads' com Ataque de Dicionário e \textit{Crib Drag}}\\
+               {\large Universidade Estadual de Campinas}}
+\author{Felipe Santos Oliveira\\
+        RA 119383}
+\date{\today}
+
+\begin{document}
+    \maketitle
+
+    \newpage
+
+    \section{Introdução}
+
+        One-time pad (OTP) são stream-ciphers onde dado uma mensagem $m$ de tamanho $n$ e uma chave $k$, onde $|k| \geq n$  
+        e é aleatoriamente gerada, $m_i \oplus k_i = c_i$, onde $c_i$ é o i-ésimo bit da mensagem $m$ cifrada com 
+        a chave $k$ pela operação de \textit{ou exclusivo} ($\oplus$ ou XOR). O OTP possui a propriedade de sigilo
+        perfeito de Shannon (\textit{perfect secrecy}), ou seja, para cada $k_i$ existem $|k|$ possibilidades para
+        que $k_i \oplus c_i = m_i$. Essa propriedade só será válida para o OTP se e somente se a chave $k$ for usada
+        para uma única mensagem. Nesse experimento realizaremos a criptanálise de uma variante do OTP, o two-times
+        pad (TTP), onde basicamente se usa uma mesma chave $k$ para cifrar duas mensagens, $m_1$ e $m_2$, distintas.
+
+    \section{Metodologia}
+
+        Sejam $m_1$ e $m_2$ as mensagem em texto puro, $k$ a chave e $c1$ e $c2$ as cifras de $m1$ e $m2$ respectivamente,
+        tais que: \\
+
+        \(
+            \begin{aligned}
+                m^i_{1} \oplus k &= c^i_{1} \\
+                m^i_{2} \oplus k &= c^i_{2}
+            \end{aligned}
+        \) \\
+
+        No entanto, quando usamos a mesma chava para as duas mensagens, ao fazer XOR entre as duas cifras,
+        teremos: \\
+
+        \(
+            \begin{aligned}
+                c^i_1 \oplus c^i_2 = (m^i_1 \oplus k) \oplus (m^i_2 \oplus k) = m^i_1 \oplus m^i_2
+            \end{aligned}
+        \) \\
+
+        Portanto, ao usar a mesma chave para as duas mensages, criamos a vulnerabilidade de que fazer XOR entre as duas 
+        mensagens cifradas nos dá o mesmo resultado de fazer XOR com as duas mensagens em texto puro. Isso abre espaço 
+        para a realização de \textit{cribbing} ou \textit{crib drag}, que consiste em chutar uma palavra com alta probabilidade
+        de estar no texto e realizar o XOR dessa palavra com o resultado do XOR das duas cifras. Caso a palavra esteja em uma
+        das mensagens originais, essa operação deve retornar uma palavra ou pedaço de palavra presente naquela posição na
+        outra mensagem. Fazendo isso sucessivamente, podemos extrair pedaços cada vez maiores das mensagens até que obtermos
+        o conteúdo da menor das duas mensagens, caso sejam de tamanhos diferentes, ou as mensagens originais completas caso
+        sejam de tamanho igual. \\
+
+        No experimento realizado, as mensagens possuiam 202 e 204 caracteres respectivamente. Portanto, só se é possível
+        obter 202 caracteres da mensagem maior usando métodos automatizados, a não ser que se faça um \textit{padding} na
+        menor. \\
+
+        Para realizar o \textit{crib drag} de maneira automatizada, foi criado um algoritimo recursivo em que se passa inicialmente duas strings vazias, o resultado do XOR das duas cifras, um cursor, uma string vazia para armazenar o resultado encontrado na última chamada da função e o tamanho da menor cifra. A condição de para é encontrar uma mensagem do mesmo tamanho da menor cifra que seja uma frase bem construída. \\
+
+        A cada chamada, usamos o que encontramos até agora no primeiro resultado para chutar a próxima palavra da frase. Se o resultado do XOR da palavra com o XOR das cifras for uma palavra, um prefixo ou um conjunto de palavras válidas com ou sem um prefixo no final, chamamos a função recursiva passando dessa vez o segundo texto contatenado com o resultado como primeiro argumento e o primeiro texto concatenado com a palavra sendo chutada. Fazemos isso até a condição de parada ser alcançada ou percorrermos todo o dicionário para um dado chute. Caso estouremos o dicionário, realizamos um \textit{backtrack} e tentamos a próxima palavra em uma posição anterior. Caso não achemos nada, retornamos strings vazias. \\
+        \newpage
+        O algorítimo em pseudo-código se encontra a seguir:
+
+        
+        \begin{algorithm}
+            \caption{Find Messages}
+            \begin{algorithmic}
+                \Procedure{FindMessages}{ptext1, ptext2, cipherxor, cursor, previousCursor, currentPart, dictionary}
+                    \If{ptext1.lenght == smallerCipher.lenght or ptext2.lenght == smallerCipher.lenght:}
+                        \If{one of the plaintextes is a well formed sentece:}
+                            \State \textbf{return} (ptext1, ptext2)
+                        \EndIf
+                    \Else
+                        \For{word in dictionary}
+                            \State result = (ptext1 + word + ` ') $\oplus$ cipher
+                            \If{result is not empty and there is a word starting with result}
+                                \State answer = FindMessage(ptext2 + result, ptext1 + word 
+                                \State \hspace{3.6cm}cipherxor, cursor + word.lenght, cursor, result, dictionary)
+                                \If{answer.ptext1 != ptext1}
+                                    \State \textbf{return} answer
+                                \EndIf
+                            \EndIf
+                        \EndFor
+                    \EndIf
+                \EndProcedure
+            \end{algorithmic}
+        \end{algorithm}
+        
+
+
+    \section{Implementação}
+        A linguagem escolhida para a implementação do algorítimo projetado foi Python devido a suas facilidades em manipulação de strings. Deve-se ressaltar que a implementação não visou ser tempo-eficiente, portanto pode ser lenta em casos mais extremos que o caso de estudo. A implementação encontra-se entre as linhas 108 e 157 do arquivo \textit{stream\_crib.py}. \\
+
+        Para a automação do \textit{cribbing} foi utilizado um dicionário das 10.000 palavras mais frequentes do inglês, carregado em duas estruturas diferentes: um \textit{map} para checar se uma dada string é uma palavra no meu dicionário, e uma lista usada para as iterações em ordem de frequência na recursão.\\
+
+        Como foi dito antes, a implementação não visa velocidade, e sim eficácia na tarefa proposta, mas estruturas como \textit{trie} ou \textit{radix tree} poderiam ser usadas em vez de uma lista afim de acelerar certas partes das verificações.\\
+
+        Para essas, foram implementadas três funções auxiliares: \textit{testCrib}, que retorna o resultado do XOR entre uma string usada como crib e outra como alvo e será do tamanho do crib; \textit{hasWordStartingWith}, que verifica se em dada string há um prefixo válido para palavras no dicionário e retorna um booleano e \textit{WordStartingWith}, que busca uma palavra começada com um dado prefixo. 
+
+    \section{Resultados}
+
+    \section{Conclusão}
+
+\end{document}
