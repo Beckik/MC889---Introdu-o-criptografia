@@ -88,7 +88,7 @@
         obter 202 caracteres da mensagem maior usando métodos automatizados, a não ser que se faça um \textit{padding} na
         menor. \\
 
-        Inicialmente tentou-se uma abordagem de rasterizacão, onde para cada palavra do dicionário se testariam todas as posicões do texto até se achar um match. A partir daí tentaria-se expandir o resultado, indo para a próxima palavra do dicionário no caso de se esbarrar em deadend. Isso se mostrou inefetivo do ponto de vista automático, dado que o problema de decisão de em que mensagem o resultado deve ir era mais complexo que o esperado.
+        Inicialmente tentou-se uma abordagem de rasterização, onde para cada palavra do dicionário se testariam todas as posicões do texto até se achar um match. A partir daí tentaria-se expandir o resultado, indo para a próxima palavra do dicionário no caso de se esbarrar em deadend. Isso se mostrou inefetivo do ponto de vista automático, dado que o problema de decisão de em que mensagem o resultado deve ir era mais complexo que o esperado.
 
         Para realizar o \textit{crib drag} de maneira automatizada, então, foi criado um algoritimo recursivo em que se passa inicialmente duas strings vazias, o resultado do XOR das duas cifras, um cursor, uma string vazia para armazenar o resultado encontrado na última chamada da função e o tamanho da menor cifra. A condição de para é encontrar uma mensagem do mesmo tamanho da menor cifra que seja uma frase bem construída. \\
 
@@ -132,12 +132,12 @@
 
         Para essas, foram implementadas três funções auxiliares: \textit{testCrib}, que retorna o resultado do XOR entre uma string usada como crib e outra como alvo e será do tamanho do crib; \textit{hasWordStartingWith}, que verifica se em dada string há um prefixo válido para palavras no dicionário e retorna um booleano e \textit{WordStartingWith}, que busca uma palavra começada com um dado prefixo. \\
 
-        Devido ao fato de a mensagem em texto puro do caso de estudo ser uma frase mal-formada, acabando em um espaco e uma quebra de linha, achar uma condicao de parada foi um pouco problemático. A condicao usada é a descrita no algorítimo, onde uso o tamanho da menor mensagem como verificacão do termino, assim como os caractéres finais. 
+        Devido ao fato de a mensagem em texto puro do caso de estudo ser uma frase mal-formada, acabando em um espaco e uma quebra de linha, achar uma condição de parada foi um pouco problemático. A condição usada é a descrita no algorítimo, onde uso o tamanho da menor mensagem como verificação do termino, assim como os caractéres finais. 
 
     \newpage
 
     \section{Resultados}
-    	Como uma das mensagens é 2 caractéres maior que a outra, esses não podem ser recuperados automaticamente, a não ser por extrapolacão da palavra final. O algorítimo funciona consideravelmente bem, encontrando as palavras corretas e se autocorrigindo em caso de erro. \\
+    	Como uma das mensagens é 2 caractéres maior que a outra, esses não podem ser recuperados automaticamente, a não ser por extrapolação da palavra final. O algorítimo funciona consideravelmente bem, encontrando as palavras corretas e se autocorrigindo em caso de erro. \\
 
     	\begin{verbatim}
     		
@@ -169,7 +169,7 @@
 
     	\end{verbatim}
 
-    	Acima pode se ver um trecho da execucao do programa com verbose ativa onde ocorre uma autocorrecão do texto. Ao final, recuperamos 202 caracteres dos 205 caracteres da chave e as duas mensagens: 
+    	Acima pode se ver um trecho da execução do programa com verbose ativa onde ocorre uma autocorreção do texto. Ao final, recuperamos 202 caracteres dos 205 caracteres da chave e as duas mensagens: 
 
     	\begin{verbatim}
 			Text 1: 'I can't in good conscience allow the U.S. government to destroy privacy, 
@@ -184,7 +184,7 @@
 
     	Mais dois caracteres da chave podem ser obtidos uma vez que se tem a mensagem de 204 caractéres, totalizando 204 de 205 caractéres da chave obtidos.\\
 
-    	Para efeito de comparacão, ao executar o código usando o comando \textit{time} do UNIX, foram obtidos os seguintes tempos:
+    	Para efeito de comparação, ao executar o código usando o comando \textit{time} do UNIX, foram obtidos os seguintes tempos:
 
     	\begin{verbatim}
 		real	0m0.343s
@@ -197,6 +197,6 @@
     	\newpage
 
     \section{Conclusão}
-    	Durante o estudo, foram utilizadas diversas abordagens para a automacão do ataque ao TTP, mas a que se mostrou mais efetiva foi a implementada, dado que não foi necessária implementacão de um algorítimo de decisão para saber onde cada palavra deve ir. Finalmente, a obtencão tanto dos textos quanto da chave usada na cifragem mostra a vulnerabilidade do TTP.	
+    	Durante o estudo, foram utilizadas diversas abordagens para a automação do ataque ao TTP, mas a que se mostrou mais efetiva foi a implementada, dado que não foi necessária implementação de um algorítimo de decisão para saber onde cada palavra deve ir. Finalmente, a obtenção tanto dos textos quanto da chave usada na cifragem mostra a vulnerabilidade do TTP.	
 
 \end{document}
