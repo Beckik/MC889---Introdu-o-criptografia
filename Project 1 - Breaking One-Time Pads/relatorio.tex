@@ -88,7 +88,9 @@
         obter 202 caracteres da mensagem maior usando métodos automatizados, a não ser que se faça um \textit{padding} na
         menor. \\
 
-        Para realizar o \textit{crib drag} de maneira automatizada, foi criado um algoritimo recursivo em que se passa inicialmente duas strings vazias, o resultado do XOR das duas cifras, um cursor, uma string vazia para armazenar o resultado encontrado na última chamada da função e o tamanho da menor cifra. A condição de para é encontrar uma mensagem do mesmo tamanho da menor cifra que seja uma frase bem construída. \\
+        Inicialmente tentou-se uma abordagem de rasterizacão, onde para cada palavra do dicionário se testariam todas as posicões do texto até se achar um match. A partir daí tentaria-se expandir o resultado, indo para a próxima palavra do dicionário no caso de se esbarrar em deadend. Isso se mostrou inefetivo do ponto de vista automático, dado que o problema de decisão de em que mensagem o resultado deve ir era mais complexo que o esperado.
+
+        Para realizar o \textit{crib drag} de maneira automatizada, então, foi criado um algoritimo recursivo em que se passa inicialmente duas strings vazias, o resultado do XOR das duas cifras, um cursor, uma string vazia para armazenar o resultado encontrado na última chamada da função e o tamanho da menor cifra. A condição de para é encontrar uma mensagem do mesmo tamanho da menor cifra que seja uma frase bem construída. \\
 
         A cada chamada, usamos o que encontramos até agora no primeiro resultado para chutar a próxima palavra da frase. Se o resultado do XOR da palavra com o XOR das cifras for uma palavra, um prefixo ou um conjunto de palavras válidas com ou sem um prefixo no final, chamamos a função recursiva passando dessa vez o segundo texto contatenado com o resultado como primeiro argumento e o primeiro texto concatenado com a palavra sendo chutada. Fazemos isso até a condição de parada ser alcançada ou percorrermos todo o dicionário para um dado chute. Caso estouremos o dicionário, realizamos um \textit{backtrack} e tentamos a próxima palavra em uma posição anterior. Caso não achemos nada, retornamos strings vazias. \\
         \newpage
@@ -128,10 +130,73 @@
 
         Como foi dito antes, a implementação não visa velocidade, e sim eficácia na tarefa proposta, mas estruturas como \textit{trie} ou \textit{radix tree} poderiam ser usadas em vez de uma lista afim de acelerar certas partes das verificações.\\
 
-        Para essas, foram implementadas três funções auxiliares: \textit{testCrib}, que retorna o resultado do XOR entre uma string usada como crib e outra como alvo e será do tamanho do crib; \textit{hasWordStartingWith}, que verifica se em dada string há um prefixo válido para palavras no dicionário e retorna um booleano e \textit{WordStartingWith}, que busca uma palavra começada com um dado prefixo. 
+        Para essas, foram implementadas três funções auxiliares: \textit{testCrib}, que retorna o resultado do XOR entre uma string usada como crib e outra como alvo e será do tamanho do crib; \textit{hasWordStartingWith}, que verifica se em dada string há um prefixo válido para palavras no dicionário e retorna um booleano e \textit{WordStartingWith}, que busca uma palavra começada com um dado prefixo. \\
+
+        Devido ao fato de a mensagem em texto puro do caso de estudo ser uma frase mal-formada, acabando em um espaco e uma quebra de linha, achar uma condicao de parada foi um pouco problemático. A condicao usada é a descrita no algorítimo, onde uso o tamanho da menor mensagem como verificacão do termino, assim como os caractéres finais. 
+
+    \newpage
 
     \section{Resultados}
+    	Como uma das mensagens é 2 caractéres maior que a outra, esses não podem ser recuperados automaticamente, a não ser por extrapolacão da palavra final. O algorítimo funciona consideravelmente bem, encontrando as palavras corretas e se autocorrigindo em caso de erro. \\
+
+    	\begin{verbatim}
+    		
+			-----
+			1: 'I can't in good conscience allow the U.S. government to destroy privacy, internet 
+			freedom and basic liberties for people around tm a'
+			2: 'Taken in its entirety, the Snowden archive led to an ultimately simple conclusion: 
+			the U.S. government had built a system that have '
+			Cursor: 132
+			-----
+
+
+			-----
+			1: 'I can't in good conscience allow the U.S. government to destroy privacy, internet 
+			freedom and basic liberties for people around zv a'
+			2: 'Taken in its entirety, the Snowden archive led to an ultimately simple conclusion: 
+			the U.S. government had built a system that home '
+			Cursor: 132
+			-----
+
+
+			-----
+			1: 'I can't in good conscience allow the U.S. government to destroy privacy, internet 
+			freedom and basic liberties for people around the'
+			2: 'Taken in its entirety, the Snowden archive led to an ultimately simple conclusion: 
+			the U.S. government had built a system that has '
+			Cursor: 131
+			-----
+
+    	\end{verbatim}
+
+    	Acima pode se ver um trecho da execucao do programa com verbose ativa onde ocorre uma autocorrecão do texto. Ao final, recuperamos 202 caracteres dos 205 caracteres da chave e as duas mensagens: 
+
+    	\begin{verbatim}
+			Text 1: 'I can't in good conscience allow the U.S. government to destroy privacy, 
+			internet freedom and basic liberties for people around the world with this massive 
+			surveillance machine they're secretly building. '
+
+			Text 2: 'Taken in its entirety, the Snowden archive led to an ultimately simple 
+			conclusion: the U.S. government had built a system that has as its goal the complete 
+			elimination of electronic privacy worldwide. 
+			'
+    	\end{verbatim}
+
+    	Mais dois caracteres da chave podem ser obtidos uma vez que se tem a mensagem de 204 caractéres, totalizando 204 de 205 caractéres da chave obtidos.\\
+
+    	Para efeito de comparacão, ao executar o código usando o comando \textit{time} do UNIX, foram obtidos os seguintes tempos:
+
+    	\begin{verbatim}
+		real	0m0.343s
+		user	0m0.330s
+		sys		0m0.016s
+    	\end{verbatim}
+
+    	
+
+    	\newpage
 
     \section{Conclusão}
+    	Durante o estudo, foram utilizadas diversas abordagens para a automacão do ataque ao TTP, mas a que se mostrou mais efetiva foi a implementada, dado que não foi necessária implementacão de um algorítimo de decisão para saber onde cada palavra deve ir. Finalmente, a obtencão tanto dos textos quanto da chave usada na cifragem mostra a vulnerabilidade do TTP.	
 
 \end{document}
