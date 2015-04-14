@@ -905,21 +905,28 @@ MathJax.Hub.Config({
 <li>Prove que a decriptação em uma cifra de Feistel pode ser feita aplicando o algorítimo à cifra com o <em>key schedule</em> invertido.</li>
 </ul>
 
-<p>Uma rede de Feitel é um caso especial de uma cifra iterada onde \( g: M \times K \rightarrow C \) possui a forma \( g(L^{i-1}, R^{i-1}, K^i) \), onde </p>
+<p>Uma rede de Feistel é um caso especial de uma cifra iterada onde \( f: M \times K \rightarrow C \) possui a forma \( g(L^{i-1}, R^{i-1}, K^i) \), onde </p>
 
-<p>$$ L^i = R^{i-1}, R^i = L^{i-1} \oplus f(R^{i-1}, K^i)$$</p>
+<p>\( L^i = R^{i-1}, R^i = L^{i-1} \oplus f(R^{i-1}, K^i)\(</p>
 
 <p>Nesse processo, o estado \( w^i \) se quebra em duas metades, \( L^i, R^i \), do mesmo tamanho.</p>
 
 <p>Seja \(w^{i-1}\) e \(w^i\) estados do processo de decriptação. Temos que:</p>
 
-<p>$$w^i = L^i || R^i = R^{i-1} || L^{i-1} \oplus f(R^{i-1}, K^i)$$</p>
+<p>\(w^i = L^i || R^i = R^{i-1} || L^{i-1} \oplus f(R^{i-1}, K^i)\)</p>
 
-<p>Portanto, para realizar a decriptação do i-ésimo estado, devemos fazer</p>
+<p>Queremos encontrar \(wi^{i-1}\):</p>
 
-<p>$$ L^i = R^{i-1}, R^i = L^{i-1} \oplus f(R^{i-1}, K^i)$$</p>
+<p>\( R^{i-1} = L^{i}\)</p>
 
-<p>que é o inverso do <em>key schedule</em>. \(\diamond\)</p>
+<p>Aplicamos \(\oplus f(R^{i-1}, K^i)\) em ambos os lados de \(R^i = L^{i-1} \oplus f(R^{i-1}, K^i)\):</p>
+
+<p>\(L^{i-1} = R^i \oplus f(R^{i-1}, K^i) = R^i \oplus f(L^i, K^i)\)</p>
+
+<p>Como podemos observar pelas definições de \(R^{i-1}\) e \(L^{i-1}\), basta
+aplicarmos a rede de Feistel sobre a cifra, usando o <em>key schedule</em> em ordem reversa.</p>
+
+<p>\(\diamond\)</p>
 
 <h2>
 <a id="user-content-questão-33" class="anchor" href="#quest%C3%A3o-33" aria-hidden="true"><span class="octicon octicon-link"></span></a>Questão 3.3</h2>
@@ -951,5 +958,72 @@ MathJax.Hub.Config({
 <h3>
 <a id="user-content-segunda-parte---cbc-e-cfb" class="anchor" href="#segunda-parte---cbc-e-cfb" aria-hidden="true"><span class="octicon octicon-link"></span></a>Segunda parte - CBC e CFB</h3>
 
-<p>O modo \(CFB\) é caracterizado por \(y_i = e_K(y_{i-1} \oplus x_i)\). Assumindo que o erro ocorre no bloco \(x_i\), temos que ????</p>
+<p>O modo \(CFB\) é caracterizado por \(y_i = e_K(y_{i-1} \oplus x_i)\). Assumindo que o erro ocorre no bloco \(x_i\), temos que o bloco em que o erro ocorreu será decifrado incorretamente, assim como o bloco adjacente (a cifra do bloco \(i\) corrompido é utilizada tanto para decifrar o bloco \(i\), quanto o bloco \(i+1\), onde é utilizada como <code>IV</code>) -- porém, o erro não é mais propagado após decifragem de ambos os blocos.</p>
+
+<p>No modo \(CBC\),  caso o erro tenha ocorrido no bloco \(i\) a cifra corrompida será utilizada para decifrar apenas o próprio bloco \(i\) e o bloco adjacente \(i+1\). O erro não é propagado para outros blocos, já que o bloco \(i+2\) recebe apenas a cifra do bloco \(i+1\) como entrada. \(\diamond\)</p>
+
+<h2>
+<a id="user-content-questão-46" class="anchor" href="#quest%C3%A3o-46" aria-hidden="true"><span class="octicon octicon-link"></span></a>Questão 4.6</h2>
+
+<ul>
+<li>Suponha que \(f: (0,1)^m \rightarrow (0,1)^m\) é uma bijeção resistente à primeira pré-imagem. Defina \(h: (0,1)^{2m} \rightarrow (0,1)^m\) como segue. Dado que \(x \in (0,1)^{2m}\):
+$$ x = x' || x'' $$
+onde \(x', x'' \in (0,1)^m\). Então:
+$$ h(x) = f(x' \oplus x'') $$
+Prove que \(h\) não é resistente a segunda pré-imagem.</li>
+</ul>
+
+<p>Temos, pela definição de resistência à primeira pré-imagem, que dado \y \in Y\), deve ser difícil de achar \(x \in X\) tal que \(y = h(x)\). A definição de segunda pré-imagem segue de que para dado \(x \in X\), deve ser difícil de achar \(x' \in X\) tal que \(x' \neq x\) e \(h(x') = h(x)\).</p>
+
+<p>Da definição de \(h\), temos: </p>
+
+<p>$$ h = f(x) = f(x' \oplus x'') $$</p>
+
+<p>Sejam \(x_1, x_2 \in X\) tais que \(x_1 = x' || x''\) e \(x_2 = x'' || x'\). Temos que:</p>
+
+<p>$$ h(x_1) = f(x_1) = f(x' \oplus x'') \\
+h(x_2) = f(x_2) = f(x'' \oplus x') $$</p>
+
+<p>Mas, \(f(x' \oplus x'') = f(x'' \oplus x')\). Portanto, \(h\) não é resistente à segunda imagem. \(\diamond\)</p>
+
+<h2>
+<a id="user-content-questão-49" class="anchor" href="#quest%C3%A3o-49" aria-hidden="true"><span class="octicon octicon-link"></span></a>Questão 4.9</h2>
+
+<ul>
+<li>Suponha \(h_1: (0,1)^{2m} \rightarrow (0,1)^m\) é uma função hash resistente à colisão. 
+
+<ul>
+<li>Defina \( h_2: (0,1)^{4m} \rightarrow (0,1)^m \) como segue:
+
+<ul>
+<li>Escreva \(x \in (0,1)^{4m}\) como \(x = x_1 || x_2\), onde \(x_1, x_2 \in (0,1)^{2m}\)</li>
+<li>Defina \( h_2(x) = h_1(h_1(x_1) || h_1(x_2)) \)
+Prove que \(h_2\) é resistente à colisão.</li>
+</ul>
+</li>
+<li>Para um inteiro \(i \geq 2\) , defina a função hash \(h_i: (0,1)^{2^i m} \rightarrow (0,1)^m\) recursivamente a partir de \(h_{i-1}\) como segue:
+
+<ul>
+<li>Escreva \(x \in (0,1)^{2^i m}\) como \(x = x_1 || x_2\), onde \(x_1, x_2 \in (0,1)^{2^{i-1} m}\)</li>
+<li>Defina \( h_i(x) = h_{i-1}(h_{i-1}(x_1) || h_{i-1}(x_2)) \)
+Prove que \(h_i\) é resistente a colisão.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="user-content-primeira-parte" class="anchor" href="#primeira-parte" aria-hidden="true"><span class="octicon octicon-link"></span></a>Primeira parte</h3>
+
+<p>Devemos provar que \(h_2\) é resistente colisão, ou seja, que não existem \(x', x'' \in (0,1)^{2m}\) tais que \(h_2(x') = h_2(x'')\). Assuma que \(h_2(x') = h_2(x'')\) e que \(x' = x_1 || x_2\) e \(x'' = x_2 || x_1\). Portanto, temos que \(h_2(x') = h_2(h_1(x_1) || h_1(x_2))\) e \(h_2(x'') = h_2(h_1(x_2) || h_1(x_1))\). No entanto, sabemos que \(h_1\) é resistente a colisão. Portanto, \( h_2(h_1(x_1) || h_1(x_2)) = h_2(h_1(x_2) || h_1(x_1)) \) é uma contradição, pois deve ser difícil de achar \(a, b\) tais que \(h_1(a) = h_1(b)\).</p>
+
+<h3>
+<a id="user-content-segunda-parte" class="anchor" href="#segunda-parte" aria-hidden="true"><span class="octicon octicon-link"></span></a>Segunda parte</h3>
+
+<p>Devemos provar uma recorrência agora. Para isso, usamos o resultado do item anterior e aplicamos indução em \(i\).</p>
+
+<p><strong>Caso base</strong>: \( h_2(x) = h_1(h_1(x_1) || h_1(x_2)) \) é resistente a colisão, dado que \(h_1\) seja igualmente resistente a colisão.
+<strong>Hipótese indutiva</strong>: \( h_{i-1}(x) = h_{i-2}(h_1(x_1) || h_{i-2}(x_2)) \) é resistente a colisão.
+<strong>Passo indutivo</strong>: Devemos provar que \(h_i(x)\) é resistente a colisão. Da definição de \(h_i(x)\), temos que \( h_i(x) = h_{i}(h_{i-1}(x_1) || h_{i-1}(x_2)) \). Assuma que \(h_i\) não é resistente a colisão. Isso implica que \(h_{i}(h_{i-1}(x_1) || h_{i-1}(x_2))\) não é resistente a colisão, o que significa que é fácil achar colisões em \(h_{i-1}(x)\). No entanto, sabemos pela hipótese indutiva que \(h_{i-1}\) é resistente a colisão. Portanto achamos uma contradição e \(h_i\) deve ser resistente a colisão.</p>
 </article></body></html>
