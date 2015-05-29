@@ -12,7 +12,7 @@ To install Pillow, use the following command:
 
 To execute the script, run the script as follows:
 
-`python encryption_tool.py [image path] [output path] --cipher [affine/tea/none] [-e] [-d]`
+`python main.py [image path] [output path] --cipher [affine/tea/none] [-e] [-d]`
 
 Note that there is a `none` mode, in which the input image will simply be displayed.
 
