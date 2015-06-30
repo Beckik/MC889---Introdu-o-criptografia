@@ -1,6 +1,6 @@
 """
-   Usage: demo.py (--generate) [options]
-          demo.py (--encrypt | --decrypt) (<key>) (<file>) [options]
+   Usage: demo.py (--generate) [-c]
+          demo.py (--encrypt | --decrypt) (<key>) (<file>) [--crt]
           demo.py -h | --help
 
    Arguments:
@@ -10,11 +10,11 @@
 
    Options:
       -h --help         Displays help
-      -v --verbose      Verbose mode 
-      -g --generate     Sets key generation mode
-      -encrypt          Sets encryption mode
-      -decrypt          Sets decryption mode
-      -crt         Sets fast decryption mode (not working)
+      --generate        Sets key generation mode
+      -c --complex      Sets complex key generation mode (default simple mode)
+      --encrypt         Sets encryption mode
+      --decrypt         Sets decryption mode
+      --crt             Sets fast decryption mode (only on decryption)
 
 """
 
@@ -25,9 +25,11 @@ from docopt import docopt
 import binascii
 import codecs
 
-def generate():
-    #keys = paillier.generateKeys()   
-    public_key, private_key = paillier.generateKeysSimple()
+def generate(args):
+    if args['--complex']: 
+        public_key, private_key = paillier.generateKeys()
+    else: 
+        public_key, private_key = paillier.generateKeysSimple()
 
     f = open('output/public_key.json', 'w')
     public_content = json.dumps({"n": public_key.n, "g": public_key.g})
@@ -73,13 +75,17 @@ def decrypt(args):
     file_content = int(f.read(), 0)
     f.close()
 
-    if args['-crt']:
+    if args['--crt']:
         plaintext = private_key.decryptCRT(file_content)
     else:
         plaintext = private_key.decrypt(file_content)
 
+
+
     plaintext = codecs.encode(hex(plaintext)[2:])
     plaintext = binascii.unhexlify(plaintext)
+
+    print(str(plaintext))
 
     plaintext = codecs.decode(plaintext)
 
@@ -95,7 +101,7 @@ if __name__ == '__main__':
     # if args['-h']:
     #     print(args)
     if args['--generate']:
-        generate()
+        generate(args)
 
     elif args['--encrypt']:
         encrypt(args)

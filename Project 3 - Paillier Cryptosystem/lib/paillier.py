@@ -14,24 +14,20 @@ def generateKeys(prime_lenght=1536):
     p = utils.getPrime(prime_lenght)
     q = utils.getPrime(prime_lenght)
 
-    if q == p or utils.computeGCD(p*q, (p-1)*(q-1)) != 1:
-        while(p == q or utils.computeGCD(p*q, (p-1)*(q-1)) != 1):
-            q = utils.getPrime(prime_lenght)
-
     n = p * q
     n_squared = n ** 2
     
     n_lambda = utils.computeLCM(p,q)
 
     g = utils.getRandomInZ_N2(n)
-    n_mu = utils.inverseMod(utils.Lfunction(utils.powMod(g, n_lambda, n_squared)), n)
+    n_mu = utils.inverseMod(utils.Lfunction(utils.powMod(g, n_lambda, n_squared), n), n)
 
     while n_mu == None:
         g = utils.getRandomInZ_N2(n)
-        n_mu = utils.inverseMod(utils.Lfunction(utils.powMod(g, n_lambda, n_squared)), n)
+        n_mu = utils.inverseMod(utils.Lfunction(utils.powMod(g, n_lambda, n_squared), n), n)
 
     public_key = PaillierPublicKey(n,g)
-    private_key = PaillierPrivateKey(n_lambda, n_mu, public_key)
+    private_key = PaillierPrivateKey(n_lambda, n_mu, p, q, public_key)
 
     return public_key, private_key  
 
@@ -40,8 +36,7 @@ def generateKeysSimple(prime_lenght=1536):
     Simpler variant of the generateKeys procedure.
     This generator works only for primes p and q of equivalent lenght.
 
-    :return tuple: (n,g) the public key
-                   (n_lambda, n_mu) the private key
+    :return tuple: (PaillierPublicKey, PaillierPrivateKey)
     """
     p = utils.getPrime(prime_lenght)
     q = utils.getPrime(prime_lenght)
@@ -82,9 +77,9 @@ class PaillierPrivateKey:
         self.mu = mu
         self.p = p
         self.q = q
-        self.h_p = utils.inverseMod(utils.Lfunction(utils.powMod(public_key.g, self.p - 1, self.p ** 2), p), p)
-        self.h_q = utils.inverseMod(utils.Lfunction(utils.powMod(public_key.g, self.q - 1, self.q ** 2), q), q)
         self.public_key = public_key
+        self.h_p = utils.inverseMod(utils.Lfunction(utils.powMod(self.public_key.g, (self.p - 1), (self.p ** 2)), self.p), self.p)
+        self.h_q = utils.inverseMod(utils.Lfunction(utils.powMod(self.public_key.g, (self.q - 1), (self.q ** 2)), self.q), self.q)
         self.n_squared = self.public_key.n**2
 
     def decrypt(self, c):
@@ -102,6 +97,10 @@ class PaillierPrivateKey:
         c_lambda2 = utils.powMod(c, self.q - 1, self.q ** 2)
         m_q = (utils.Lfunction(c_lambda2, self.q) * self.h_q) % self.q
 
+        print('m_p: ' + str(m_p))
+        print()
+        print('m_q' + str(m_q))
+        print()
 
         message = utils.crt([m_p],[m_q]) % (self.public_key.n)
 

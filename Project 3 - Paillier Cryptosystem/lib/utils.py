@@ -66,17 +66,16 @@ def getPrime(N):
 def computeLCM(a,b):
     a, b = abs(a), abs(b)
     m = a * b
-    if not m:
-        return 0
+    if not m: return 0
     while True:
         a %= b
         if not a:
-            return m // a
+            return m // b
         b %= a
         if not b:
-            return m // b
+            return m // a
 
-def getRandomInZ_N2(N):
+def getRandomInZ_N2(n):
     """
     Returns an integer in the group Z^*_{n^2}
     """
@@ -107,10 +106,22 @@ def Lfunction(u, n):
     return (u - 1) // n
 
 def crt(a, n):
+    """
+    Chinese Remainder Theorem implementation. 
+
+    Given a list of integers and a list of the correspondent remainders, calculates
+    the common number which divided by each of the integers yields that correspondent
+    remainder.
+
+    :input 
+        a: list of integers
+        n: list of correspondent remainders
+    :return
+        int: number that yields each of the remainders when
+             divided by the correspondent integer
+    """
     p = i = prod = 1
     sm = 0
-
-    print(str(len(a)))
 
     for i in range(len(a)): prod *= n[i]
     for i in range(len(a)): 
